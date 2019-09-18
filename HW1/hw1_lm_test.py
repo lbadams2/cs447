@@ -86,7 +86,7 @@ if __name__ == '__main__':
 	#sentence = ["<s>", "the", "UNK", "</s>"]
 
 #	get the corpora
-	corpus = readFileToCorpus("test.txt") 
+	corpus = readFileToCorpus("/Users/liam_adams/my_repos/cs447/HW1/test.txt") 
 	corpus = preprocess(corpus)
 
 	#get your models
@@ -97,8 +97,8 @@ if __name__ == '__main__':
 	#test the models
 	
 	runTests("unsmoothed_unigram", unigram, sen, corpus)
-	runTests("smoothed_unigram", smoothedUnigram, sen, corpus)
-	runTests("unsmoothed_bigram", bigram, sen, corpus)
+	#runTests("smoothed_unigram", smoothedUnigram, sen, corpus)
+	#runTests("unsmoothed_bigram", bigram, sen, corpus)
 	'''
 	runTests("unsmoothed_unigram", unigram, sentence, testCorpus)
 	runTests("smoothed_unigram", smoothedUnigram, sentence, testCorpus)
