@@ -190,20 +190,25 @@ class UnigramModel(LanguageModel):
                 self.intervals.append(prob)
             else:
                 self.intervals.append(prob + self.intervals[-1])
-        
 
     def generateSentence(self):        
         sentence = []        
         while True:
             rand_val = random.uniform(0, 1)
             i = 0
-            while rand_val > self.intervals[i]:
-                i += 1
-            if i > len(self.intervals):
-                i -= 1
+            if rand_val == 1:
+                i = len(self.intervals) - 1
+            else:
+                while rand_val > self.intervals[i]:
+                    i += 1
+            if i >= len(self.intervals):
+                i = len(self.intervals) - 1
             word = self.words[i]
-            if(word == end and sentence):
+            if word == end and len(sentence) > 1:
+                #sentence.append(word)
                 break
+            elif word == end and len(sentence) <= 1:
+                continue
             sentence.append(word)
         return sentence
 
@@ -226,8 +231,92 @@ class UnigramModel(LanguageModel):
 class SmoothedUnigramModel(LanguageModel):
     def __init__(self, corpus):
         self.get_freq_dict(corpus)
+        self.add_one()
         self.create_intervals()
     #endddef
+
+    def add_one(self):
+        for word in self.words:
+            self.freqDict[word] += 1
+
+    def create_intervals(self):
+        self.intervals = []
+        #self.intervals.append(0)
+        for word in self.words:
+            prob = self.freqDict[word] / (self.word_instances + self.word_types)
+            if not self.intervals:
+                self.intervals.append(prob)
+            else:
+                self.intervals.append(prob + self.intervals[-1])
+
+    def generateSentence(self):        
+        sentence = []        
+        while True:
+            rand_val = random.uniform(0, 1)
+            i = 0
+            if rand_val == 1:
+                i = len(self.intervals) - 1
+            else:
+                while rand_val > self.intervals[i]:
+                    i += 1
+            if i >= len(self.intervals):
+                i = len(self.intervals) - 1
+            word = self.words[i]
+            if word == end and len(sentence) > 1:
+                #sentence.append(word)
+                break
+            elif word == end and len(sentence) <= 1:
+                continue
+            sentence.append(word)
+        return sentence
+
+    # if word is not in training corpus prob will be 0
+    def getSentenceProbability(self, sen):
+        prob = 0
+        i = 0
+        for word in sen[1:]:
+            if i == 0:
+                prob = self.freqDict[word] / (self.word_instances + self.word_types)
+                i = 1
+            else:
+                prob = prob * self.freqDict[word] / (self.word_instances + self.word_types)
+        return prob
+    
+    def getCorpusPerplexity(self, corpus):
+        perplexity = 0.0
+        for sen in corpus:
+            for word in sen[1:]:
+                prob = self.freqDict[word] / (self.word_instances + self.word_types)
+                perplexity += math.log(prob)
+        perplexity = (-1 / self.word_instances) * perplexity
+        perplexity = math.exp(perplexity)
+        return perplexity
+#endclass
+
+# Unsmoothed bigram language model
+class BigramModel(LanguageModel):
+    def __init__(self, corpus):
+        self.get_freq_dict(corpus)
+        self.create_intervals()
+        self.get_cond_probs(corpus)
+    #endddef
+    '''
+    def get_freq_dict(self, corpus):
+        self.freqDict = defaultdict(int)
+        for sen in corpus:
+            for i in range(1, len(sen)):
+                self.freqDict[(sen[i-1], sen[i])] += 1
+        self.words = list(self.freqDict.keys())
+        self.word_types = len(self.words)
+        self.word_instances = sum(self.freqDict.values())
+    '''
+    def get_cond_probs(self, corpus):
+        self.cond_probs = defaultdict(list)
+        for sen in corpus:
+            last = sen[0]
+            for i in range(1, len(sen)):
+                self.cond_probs[last].append(sen[i])
+                last = sen[i]
 
     def create_intervals(self):
         self.intervals = []
@@ -238,41 +327,91 @@ class SmoothedUnigramModel(LanguageModel):
                 self.intervals.append(prob)
             else:
                 self.intervals.append(prob + self.intervals[-1])
-        
-
-    def generateSentence(self):        
+    '''
+    def create_intervals(self):
+        self.intervals = []
+        #self.intervals.append(0)
+        for word in self.words:
+            prob = self.freqDict[word] / self.word_instances
+            if not self.intervals:
+                self.intervals.append(prob)
+            else:
+                self.intervals.append(prob + self.intervals[-1])
+    '''
+    def generateSentence(self):
+        sentence = []
+        last = start
+        while True:
+            next_instances = self.cond_probs[last]
+            i = random.randrange(len(next_instances))
+            if len(sentence) <= 1:
+                while(next_instances[i] == end):
+                    i = random.randrange(len(next_instances))
+            elif next_instances[i] == end:
+                break
+            sentence.append(next_instances[i])
+            last = next_instances[i]
+        return sentence
+    '''
+    def generateSentence(self):
         sentence = []        
         while True:
             rand_val = random.uniform(0, 1)
             i = 0
-            while rand_val > self.intervals[i]:
-                i += 1
-            if i > len(self.intervals):
+            if rand_val == 1:
+                i = len(self.intervals) - 1
+            else:
+                while rand_val > self.intervals[i]:
+                    i += 1
+            if i == len(self.intervals):
                 i -= 1
             word = self.words[i]
-            if(word == end):
+            if word[0] != start:
+                continue
+            if end in word and sentence:
+                sentence.append(word[0])
+                #sentence.append(word[1])
                 break
-            sentence.append(word)
+            elif end in word and not sentence:
+                continue
+            #elif word == end and not sentence:
+            #    continue
+            sentence.append(word[0])
+            sentence.append(word[1])
         return sentence
+    '''
 
-    # if word is not in training corpus prob will be 0
     def getSentenceProbability(self, sen):
         prob = 0
-        i = 0
-        for word in sen[1:]:
-            if i == 0:
-                prob = self.freqDict[word] / self.word_instances
-                i = 1
+        for w in range(1, len(sen)):
+            current = sen[w]
+            last = sen[w-1]
+            next_instances = self.cond_probs[last]
+            if not next_instances:
+                return 0
+            current_count = next_instances.count(current)
+            if current_count == 0:
+                return 0
+            cond_prob = current_count / len(next_instances)
+            if w == 1:
+                prob = cond_prob
             else:
-                prob = prob * self.freqDict[word] / self.word_instances
+                prob = prob * cond_prob
         return prob
-#endclass
 
-# Unsmoothed bigram language model
-class BigramModel(LanguageModel):
-    def __init__(self, corpus):
-        print("Subtask: implement the unsmoothed bigram language model")
-    #endddef
+    def getCorpusPerplexity(self, corpus):
+        perplexity = 0.0
+        for sen in corpus:
+            for w in range(1, len(sen)):
+                current = sen[w]
+                last = sen[w-1]
+                next_instances = self.cond_probs[last]
+                current_count = next_instances.count(current)
+                cond_prob = current_count / len(next_instances)
+                perplexity += math.log(cond_prob)
+        perplexity = (-1 / self.word_instances) * perplexity
+        perplexity = math.exp(perplexity)
+        return perplexity
 #endclass
 
 # Sample class for a unsmoothed unigram probability distribution
