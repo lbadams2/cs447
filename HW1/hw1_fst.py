@@ -10,6 +10,8 @@ E = set("E")
 DROP_E = CONS.union(set("u"))
 DOUBLE = set("nptr")
 I = set("i")
+#CONS_PAIRS = {str(c1 + c2) for c1 in CONS for c2 in CONS}
+
 
 # Implement your solution here
 def buildFST():
@@ -22,6 +24,8 @@ def buildFST():
     f.addState("q_ing") # a non-accepting state
     f.addState("q_precede_e")
     f.addState("q_double")
+    f.addState("q_double_cons")
+    f.addState("q_vow_cons")
     f.addState("q_i")
     f.addState("q_etoy")
     #f.addState("q_drop_e")
@@ -36,11 +40,15 @@ def buildFST():
     f.addSetTransition("q1", AZ-E, "q1")
 
     # get rid of this transition! (it overgenerates):
-    f.addSetTransition("q1", AZ-VOWS, "q_ing") 
+    # maybe try string of consecutive consonants here
+    f.addSetTransition("q1", CONS, "q_double_cons")
+    f.addSetTransition("q_double_cons", CONS, "q_ing")
 
     f.addSetTransition("q1", DROP_E, "q_precede_e")
     #f.addSetTransition("q_precede_e", CONS, "q1")
     f.addSetTransition("q1", VOWS, "q_double")
+    f.addSetTransition("q1", VOWS, "q_vow_cons")
+    f.addSetTransition("q_vow_cons", CONS-DOUBLE, "q_ing")
     #f.addSetTransition("q_double", DOUBLE, "q_ing")
 
     # map the empty string to ing: 
@@ -55,6 +63,7 @@ def buildFST():
 
     # Return your completed FST
     return f
+
     
 
 if __name__ == "__main__":
