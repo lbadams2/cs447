@@ -36,7 +36,7 @@ def buildFST():
     f.addSetTransition("q1", AZ-E, "q1")
 
     # get rid of this transition! (it overgenerates):
-    f.addSetTransition("q1", AZ-VOWS, "q_ing")
+    f.addSetTransition("q1", AZ-VOWS, "q_ing") 
 
     f.addSetTransition("q1", DROP_E, "q_precede_e")
     #f.addSetTransition("q_precede_e", CONS, "q1")
