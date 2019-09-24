@@ -9,7 +9,7 @@ agree  ==>  agreeing
 aid  ==>  aiding
 aim  ==>  aiming
 amend  ==>  amending
-answer  ==>  answerring
+answer  ==>  answering
 appeal  ==>  appealing
 appear  ==>  appearring
 argue  ==>  arguing
@@ -51,7 +51,7 @@ change  ==>  changing
 charge  ==>  charging
 chase  ==>  chasing
 cheat  ==>  cheatting
-cheer  ==>  cheerring
+cheer  ==>  cheering
 choose  ==>  choosing
 claim  ==>  claiming
 clean  ==>  cleanning
@@ -62,7 +62,7 @@ cook  ==>  cooking
 copy  ==>  copying
 cost  ==>  costing
 count  ==>  counting
-cover  ==>  coverring
+cover  ==>  covering
 crash  ==>  crashing
 create  ==>  creating
 cross  ==>  crossing
@@ -101,7 +101,7 @@ employ  ==>  employing
 empty  ==>  emptying
 end  ==>  ending
 enjoy  ==>  enjoying
-enter  ==>  enterring
+enter  ==>  entering
 escape  ==>  escaping
 excuse  ==>  excusing
 exile  ==>  exiling
@@ -135,8 +135,8 @@ form  ==>  forming
 free  ==>  freeing
 freeze  ==>  freezing
 gain  ==>  gainning
-gather  ==>  gatherring
-get  ==>  getting
+gather  ==>  gathering
+get  ==>  FAIL
 give  ==>  giving
 govern  ==>  governing
 grind  ==>  grinding
@@ -145,7 +145,7 @@ guard  ==>  guarding
 guide  ==>  guiding
 halt  ==>  halting
 hang  ==>  hanging
-happen  ==>  happenning
+happen  ==>  happening
 harm  ==>  harming
 hate  ==>  hating
 have  ==>  having
@@ -176,7 +176,7 @@ invite  ==>  inviting
 join  ==>  joinning
 judge  ==>  judging
 jump  ==>  jumping
-keep  ==>  keepping
+keep  ==>  FAIL
 kick  ==>  kicking
 kidnap  ==>  kidnapping
 kill  ==>  killing
@@ -190,13 +190,13 @@ lead  ==>  leading
 leak  ==>  leaking
 leave  ==>  leaving
 lend  ==>  lending
-let  ==>  letting
+let  ==>  FAIL
 lie  ==>  lying
 lift  ==>  lifting
 like  ==>  liking
 link  ==>  linking
 list  ==>  listing
-listen  ==>  listenning
+listen  ==>  listening
 live  ==>  living
 load  ==>  loading
 look  ==>  looking
@@ -205,24 +205,24 @@ make  ==>  making
 mark  ==>  marking
 may  ==>  maying
 mean  ==>  meanning
-meet  ==>  meetting
+meet  ==>  FAIL
 melt  ==>  melting
 mine  ==>  mining
 miss  ==>  missing
 mix  ==>  mixing
 mourn  ==>  mourning
 move  ==>  moving
-murder  ==>  murderring
+murder  ==>  murdering
 must  ==>  musting
 name  ==>  naming
 need  ==>  needing
 note  ==>  noting
 object  ==>  objecting
 occupy  ==>  occupying
-offer  ==>  offerring
-open  ==>  openning
+offer  ==>  offering
+open  ==>  opening
 oppose  ==>  opposing
-order  ==>  orderring
+order  ==>  ordering
 oust  ==>  ousting
 owe  ==>  owing
 own  ==>  owning
@@ -279,7 +279,7 @@ sell  ==>  selling
 send  ==>  sending
 sense  ==>  sensing
 serve  ==>  serving
-set  ==>  setting
+set  ==>  FAIL
 settle  ==>  settling
 shake  ==>  shaking
 shape  ==>  shaping
@@ -293,7 +293,7 @@ show  ==>  showing
 sign  ==>  signing
 sing  ==>  singing
 sit  ==>  sitting
-sleep  ==>  sleepping
+sleep  ==>  FAIL
 slide  ==>  sliding
 slow  ==>  slowing
 smash  ==>  smashing
@@ -317,7 +317,7 @@ stop  ==>  stopping
 store  ==>  storing
 strike  ==>  striking
 study  ==>  studying
-suffer  ==>  sufferring
+suffer  ==>  suffering
 supply  ==>  supplying
 take  ==>  taking
 talk  ==>  talking
@@ -353,9 +353,9 @@ wear  ==>  wearring
 will  ==>  willing
 win  ==>  winning
 wish  ==>  wishing
-wonder  ==>  wonderring
+wonder  ==>  wondering
 work  ==>  working
 worry  ==>  worrying
 wreck  ==>  wrecking
 write  ==>  writing
-###  1.0 ( 360  out of  360 ) parsed
+###  0.9833333333333333 ( 354  out of  360 ) parsed

@@ -27,6 +27,7 @@ def buildFST():
     f.addState("q_double")
     f.addState("q_double_cons")
     f.addState("q_vow_cons")
+    f.addState("q_e_cons")
     f.addState("q_double_e")
     f.addState("q_i")
     f.addState("q_etoy")
@@ -48,7 +49,10 @@ def buildFST():
 
     f.addSetTransition("q1", DROP_E, "q_precede_e")
     #f.addSetTransition("q_precede_e", CONS, "q1")
-    f.addSetTransition("q1", VOWS, "q_double")
+    f.addSetTransition("q1", VOWS-E, "q_double")
+    f.addSetTransition("q1", E, "q_e_cons")
+    f.addSetTransition("q_e_cons", set("rn"), "q_ing")
+    #f.addSetTransition("q_e_cons", CONS-set("rn"), "q_double")
     f.addSetTransition("q1", VOWS, "q_vow_cons")
     VOW_CONS = CONS-DOUBLE
     f.addSetTransition("q_vow_cons", VOW_CONS.union(Y), "q_ing")
