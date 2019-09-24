@@ -5,12 +5,14 @@ from fst import *
 AZ = set("abcdefghijklmnopqrstuvwxyz")
 VOWS = set("aeiou")
 CONS = set("bcdfghjklmnprstvwxz")
+#E = set("e")
 E = set("E")
+DROP_E = CONS.union(set("u"))
+DOUBLE = set("nptr")
+I = set("i")
 
 # Implement your solution here
 def buildFST():
-    print("Your task is to implement a better FST in the buildFST() function, using the methods described here")
-    print("You may define additional methods in this module (hw1_fst.py) as desired")
     #
     # The states (you need to add more)
     # ---------------------------------------
@@ -18,6 +20,11 @@ def buildFST():
     f = FST("q0") # q0 is the initial (non-accepting) state
     f.addState("q1") # a non-accepting state
     f.addState("q_ing") # a non-accepting state
+    f.addState("q_precede_e")
+    f.addState("q_double")
+    f.addState("q_i")
+    f.addState("q_etoy")
+    #f.addState("q_drop_e")
     f.addState("q_EOW", True) # an accepting state (you shouldn't need any additional accepting states)
 
     #
@@ -29,10 +36,22 @@ def buildFST():
     f.addSetTransition("q1", AZ-E, "q1")
 
     # get rid of this transition! (it overgenerates):
-    f.addSetTransition("q1", AZ, "q_ing")
+    #f.addSetTransition("q1", CONS, "q_ing")
+
+    f.addSetTransition("q1", DROP_E, "q_precede_e")
+    #f.addSetTransition("q_precede_e", CONS, "q1")
+    f.addSetTransition("q1", VOWS, "q_double")
+    #f.addSetTransition("q_double", DOUBLE, "q_ing")
 
     # map the empty string to ing: 
     f.addTransition("q_ing", "", "ing", "q_EOW")
+    f.addTransition("q_precede_e", "e", "", "q_ing")
+    f.addTransition("q_double", "n", "nn", "q_ing")
+    f.addTransition("q_double", "p", "pp", "q_ing")
+    f.addTransition("q_double", "t", "tt", "q_ing")
+    f.addTransition("q_double", "r", "rr", "q_ing")
+    f.addTransition("q1", "i", "", "q_etoy")
+    f.addTransition("q_etoy", "e", "y", "q_ing")
 
     # Return your completed FST
     return f

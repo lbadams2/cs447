@@ -93,12 +93,21 @@ if __name__ == '__main__':
 	unigram = UnigramModel(corpus)
 	smoothedUnigram = SmoothedUnigramModel(corpus)
 	bigram = BigramModel(corpus)
+
+	'''
+	with open('bigram.output.txt', 'w') as f:
+		for i in range(0, 20):	
+			gen_sen = bigram.generateSentence()
+			sen_str = ' '.join(gen_sen)
+			f.write(sen_str + '\n')
+	'''
 	
 	#test the models
 	
 	runTests("unsmoothed_unigram", unigram, sen, corpus)
-	#runTests("smoothed_unigram", smoothedUnigram, sen, corpus)
-	#runTests("unsmoothed_bigram", bigram, sen, corpus)
+	runTests("smoothed_unigram", smoothedUnigram, sen, corpus)
+	runTests("unsmoothed_bigram", bigram, sen, corpus)
+
 	'''
 	runTests("unsmoothed_unigram", unigram, sentence, testCorpus)
 	runTests("smoothed_unigram", smoothedUnigram, sentence, testCorpus)

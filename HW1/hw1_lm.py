@@ -300,16 +300,7 @@ class BigramModel(LanguageModel):
         self.create_intervals()
         self.get_cond_probs(corpus)
     #endddef
-    '''
-    def get_freq_dict(self, corpus):
-        self.freqDict = defaultdict(int)
-        for sen in corpus:
-            for i in range(1, len(sen)):
-                self.freqDict[(sen[i-1], sen[i])] += 1
-        self.words = list(self.freqDict.keys())
-        self.word_types = len(self.words)
-        self.word_instances = sum(self.freqDict.values())
-    '''
+
     def get_cond_probs(self, corpus):
         self.cond_probs = defaultdict(list)
         for sen in corpus:
@@ -327,17 +318,7 @@ class BigramModel(LanguageModel):
                 self.intervals.append(prob)
             else:
                 self.intervals.append(prob + self.intervals[-1])
-    '''
-    def create_intervals(self):
-        self.intervals = []
-        #self.intervals.append(0)
-        for word in self.words:
-            prob = self.freqDict[word] / self.word_instances
-            if not self.intervals:
-                self.intervals.append(prob)
-            else:
-                self.intervals.append(prob + self.intervals[-1])
-    '''
+
     def generateSentence(self):
         sentence = []
         last = start
@@ -352,34 +333,6 @@ class BigramModel(LanguageModel):
             sentence.append(next_instances[i])
             last = next_instances[i]
         return sentence
-    '''
-    def generateSentence(self):
-        sentence = []        
-        while True:
-            rand_val = random.uniform(0, 1)
-            i = 0
-            if rand_val == 1:
-                i = len(self.intervals) - 1
-            else:
-                while rand_val > self.intervals[i]:
-                    i += 1
-            if i == len(self.intervals):
-                i -= 1
-            word = self.words[i]
-            if word[0] != start:
-                continue
-            if end in word and sentence:
-                sentence.append(word[0])
-                #sentence.append(word[1])
-                break
-            elif end in word and not sentence:
-                continue
-            #elif word == end and not sentence:
-            #    continue
-            sentence.append(word[0])
-            sentence.append(word[1])
-        return sentence
-    '''
 
     def getSentenceProbability(self, sen):
         prob = 0
