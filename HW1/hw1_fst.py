@@ -6,10 +6,11 @@ AZ = set("abcdefghijklmnopqrstuvwxyz")
 VOWS = set("aeiou")
 CONS = set("bcdfghjklmnprstvwxz")
 #E = set("e")
-E = set("E")
+E = set("e")
 DROP_E = CONS.union(set("u"))
 DOUBLE = set("nptr")
 I = set("i")
+Y = set("y")
 #CONS_PAIRS = {str(c1 + c2) for c1 in CONS for c2 in CONS}
 
 
@@ -26,6 +27,7 @@ def buildFST():
     f.addState("q_double")
     f.addState("q_double_cons")
     f.addState("q_vow_cons")
+    f.addState("q_double_e")
     f.addState("q_i")
     f.addState("q_etoy")
     #f.addState("q_drop_e")
@@ -37,18 +39,22 @@ def buildFST():
     # transduce every element in this set to itself: 
     f.addSetTransition("q0", AZ, "q1")
     # AZ-E =  the set AZ without the elements in the set E
-    f.addSetTransition("q1", AZ-E, "q1")
+    f.addSetTransition("q1", AZ, "q1")
 
     # get rid of this transition! (it overgenerates):
     # maybe try string of consecutive consonants here
     f.addSetTransition("q1", CONS, "q_double_cons")
-    f.addSetTransition("q_double_cons", CONS, "q_ing")
+    f.addSetTransition("q_double_cons", CONS.union(Y), "q_ing")
 
     f.addSetTransition("q1", DROP_E, "q_precede_e")
     #f.addSetTransition("q_precede_e", CONS, "q1")
     f.addSetTransition("q1", VOWS, "q_double")
     f.addSetTransition("q1", VOWS, "q_vow_cons")
-    f.addSetTransition("q_vow_cons", CONS-DOUBLE, "q_ing")
+    VOW_CONS = CONS-DOUBLE
+    f.addSetTransition("q_vow_cons", VOW_CONS.union(Y), "q_ing")
+    f.addSetTransition("q1", E, "q_double_e")
+    f.addSetTransition("q_double_e", E, "q_ing")
+    
     #f.addSetTransition("q_double", DOUBLE, "q_ing")
 
     # map the empty string to ing: 
