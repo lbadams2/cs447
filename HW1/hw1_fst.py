@@ -46,6 +46,8 @@ def buildFST():
     f.addSetTransition("q1", AZ-E, "q1")
     f.addSetTransition("q1", E, "q_e")
     f.addSetTransition("q_e", E, "q_ing")
+    f.addSetTransition("q_e", E, "q_double_e")
+    f.addSetTransition("q_double_e", CONS, "q_ing")
     f.addSetTransition("q_e", set("rn"), "q_ing")
     #f.addSetTransition("q_e", set("a"), "q_ea")
     #f.addSetTransition("q_ea", CONS, "q_ing")
