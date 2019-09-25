@@ -82,6 +82,7 @@ def buildFST():
     f.addTransition("q_double", "p", "pp", "q_ing")
     f.addTransition("q_double", "t", "tt", "q_ing")
     f.addTransition("q_double", "r", "rr", "q_ing")
+    f.addTransition("q_e", "t", "tt", "q_ing")
     f.addTransition("q1", "i", "", "q_etoy")
     f.addTransition("q_etoy", "e", "y", "q_ing")
 
