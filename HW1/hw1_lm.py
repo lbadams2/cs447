@@ -154,7 +154,10 @@ class LanguageModel:
         for sen in corpus:
             for word in sen[1:]:
                 prob = self.freqDict[word] / self.word_instances
-                perplexity += math.log(prob)
+                if prob > 0:
+                    perplexity += math.log(prob)
+                else:
+                    perplexity -= math.inf
         perplexity = (-1 / self.word_instances) * perplexity
         perplexity = math.exp(perplexity)
         return perplexity
@@ -287,7 +290,8 @@ class SmoothedUnigramModel(LanguageModel):
         for sen in corpus:
             for word in sen[1:]:
                 prob = self.freqDict[word] / (self.word_instances + self.word_types)
-                perplexity += math.log(prob)
+                if prob > 0:
+                    perplexity += math.log(prob)
         perplexity = (-1 / self.word_instances) * perplexity
         perplexity = math.exp(perplexity)
         return perplexity
@@ -360,8 +364,13 @@ class BigramModel(LanguageModel):
                 last = sen[w-1]
                 next_instances = self.cond_probs[last]
                 current_count = next_instances.count(current)
-                cond_prob = current_count / len(next_instances)
-                perplexity += math.log(cond_prob)
+                cond_prob = 0
+                if len(next_instances) > 0:
+                    cond_prob = current_count / len(next_instances)
+                if cond_prob > 0:
+                    perplexity += math.log(cond_prob)
+                else:
+                    perplexity -= math.inf
         perplexity = (-1 / self.word_instances) * perplexity
         perplexity = math.exp(perplexity)
         return perplexity
