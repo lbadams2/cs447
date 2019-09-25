@@ -22,6 +22,7 @@ def buildFST():
     # 
     f = FST("q0") # q0 is the initial (non-accepting) state
     f.addState("q1") # a non-accepting state
+    f.addState("q2")
     f.addState("q_ing") # a non-accepting state
     f.addState("q_precede_e")
     f.addState("q_double")
@@ -30,6 +31,8 @@ def buildFST():
     f.addState("q_e_cons")
     f.addState("q_double_e")
     f.addState("q_i")
+    f.addState("q_e")
+    f.addState("q_ea")
     f.addState("q_etoy")
     #f.addState("q_drop_e")
     f.addState("q_EOW", True) # an accepting state (you shouldn't need any additional accepting states)
@@ -40,8 +43,17 @@ def buildFST():
     # transduce every element in this set to itself: 
     f.addSetTransition("q0", AZ, "q1")
     # AZ-E =  the set AZ without the elements in the set E
-    f.addSetTransition("q1", AZ, "q1")
-
+    f.addSetTransition("q1", AZ-E, "q1")
+    f.addSetTransition("q1", E, "q_e")
+    f.addSetTransition("q_e", E, "q_ing")
+    f.addSetTransition("q_e", set("rn"), "q_ing")
+    #f.addSetTransition("q_e", set("a"), "q_ea")
+    #f.addSetTransition("q_ea", CONS, "q_ing")
+    #f.addSetTransition("q_ea", DROP_E, "q_precede_e")
+    f.addSetTransition("q_e", AZ-E, "q2")
+    f.addSetTransition("q2", AZ, "q2")
+    f.addSetTransition("q2", DROP_E, "q_precede_e")
+    f.addSetTransition("q2", CONS.union(Y), "q_ing")
     # get rid of this transition! (it overgenerates):
     # maybe try string of consecutive consonants here
     f.addSetTransition("q1", CONS, "q_double_cons")
@@ -50,14 +62,14 @@ def buildFST():
     f.addSetTransition("q1", DROP_E, "q_precede_e")
     #f.addSetTransition("q_precede_e", CONS, "q1")
     f.addSetTransition("q1", VOWS-E, "q_double")
-    f.addSetTransition("q1", E, "q_e_cons")
-    f.addSetTransition("q_e_cons", set("rn"), "q_ing")
+    
+    #f.addSetTransition("q_e_cons", set("rn"), "q_ing")
     #f.addSetTransition("q_e_cons", CONS-set("rn"), "q_double")
     f.addSetTransition("q1", VOWS, "q_vow_cons")
     VOW_CONS = CONS-DOUBLE
     f.addSetTransition("q_vow_cons", VOW_CONS.union(Y), "q_ing")
-    f.addSetTransition("q1", E, "q_double_e")
-    f.addSetTransition("q_double_e", E, "q_ing")
+    #f.addSetTransition("q1", E, "q_double_e")
+    #f.addSetTransition("q_double_e", E, "q_ing")
     
     #f.addSetTransition("q_double", DOUBLE, "q_ing")
 
