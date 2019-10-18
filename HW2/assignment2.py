@@ -68,6 +68,7 @@ class TextDataset(data.Dataset):
     self.textual_ids = []
     self.ixtoword = ixtoword
     self.wordtoix = wordtoix
+    self.build_dictionary()
     ### TO-DO
   
   def build_dictionary(self):
@@ -91,7 +92,7 @@ class TextDataset(data.Dataset):
                     word_counts[w] += 1
         index = 2
         for w in word_counts:
-            if w != '<end>' and w != '<unk>' and word_counts[w] >= THRESHOLD:
+            if w != '<end>' and w != '<unk>' and word_counts[w] >= self.THRESHOLD:
                 self.ixtoword[index] = w
                 self.wordtoix[w] = index
                 index += 1
@@ -142,13 +143,13 @@ We initialize the training and testing dataloaders using the Dataset classes we 
 
 if(__name__=='__main__'):
   Ds = TextDataset(train_data, 'train')
-  _, ixtoword, wordtoix = Ds.build_dictionary()
+  #_, ixtoword, wordtoix = Ds.build_dictionary()
   batch_size = 32
-  vocab_size = len(wordtoix)
+  vocab_size = len(Ds.wordtoix)
   #print(vocab_size)
   train_loader = torch.utils.data.DataLoader(Ds, batch_size=batch_size, shuffle=True, num_workers=4, drop_last=True)
-  test_Ds = TextDataset(test_data, 'test', ixtoword=ixtoword, wordtoix=wordtoix)
-  test_Ds.build_dictionary()
+  test_Ds = TextDataset(test_data, 'test', ixtoword=Ds.ixtoword, wordtoix=Ds.wordtoix)
+  #test_Ds.build_dictionary()
   test_loader = torch.utils.data.DataLoader(test_Ds, batch_size=1, shuffle=False, num_workers=4, drop_last=True) ### TO-DO - Make sure shuffle is set to False, Use batch_size=1 for test
 
 """## Build your Sequential Model
@@ -179,23 +180,24 @@ class RNN(nn.Module):
 # Feel Free to play around with these
 # for getting optimal performance
 # TO-DO
-INPUT_DIM = vocab_size #this should be your vocab size
-EMBEDDING_DIM = 100
-HIDDEN_DIM = 256
-OUTPUT_DIM = 1
-N_LAYERS = 1
-BIDIRECTIONAL = True
-DROPOUT = 0.5
-PAD_IDX = 0
+if(__name__=='__main__'):
+  INPUT_DIM = vocab_size #this should be your vocab size
+  EMBEDDING_DIM = 100
+  HIDDEN_DIM = 256
+  OUTPUT_DIM = 1
+  N_LAYERS = 1
+  BIDIRECTIONAL = True
+  DROPOUT = 0.5
+  PAD_IDX = 0
 
-model = RNN(INPUT_DIM, 
-            EMBEDDING_DIM, 
-            HIDDEN_DIM, 
-            OUTPUT_DIM, 
-            N_LAYERS, 
-            BIDIRECTIONAL, 
-            DROPOUT, 
-            PAD_IDX)
+  model = RNN(INPUT_DIM, 
+              EMBEDDING_DIM, 
+              HIDDEN_DIM, 
+              OUTPUT_DIM, 
+              N_LAYERS, 
+              BIDIRECTIONAL, 
+              DROPOUT, 
+              PAD_IDX)
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
