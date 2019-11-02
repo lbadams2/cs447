@@ -247,7 +247,7 @@ class HMM:
                     val = exp(log_prob)
                     if val > max_val:
                         max_val = val
-                        prev_max_tag_ix = t
+                        prev_max_tag_ix = prev_tag_ix
 
                 lattice[tag_index][i] = max_val
                 backpointer[tag_index][i] = prev_max_tag_ix
@@ -262,10 +262,13 @@ class HMM:
 
         best_path = []
         best_path.insert(0, self.ix_to_tag[max_tag])
-        for i in range(len(words) - 2, -1, -1):
+        for i in range(len(words) - 1, -1, -1):
+            if i == 0:
+                break
             tag_ix = backpointer[max_tag][i]
             tag = self.ix_to_tag[tag_ix]
             best_path.insert(0, tag)
+            max_tag = tag_ix
 
         return best_path
 
