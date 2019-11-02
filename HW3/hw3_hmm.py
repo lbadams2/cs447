@@ -52,9 +52,14 @@ class HMM:
                     tag_count[tagged_word.tag] += 1
                     self.possible_tags[tagged_word.word].add(tagged_word.tag)
                 sens.append(sentence) # append this list as an element to the list of sentences
-            tag_count['<s>'] = line_count
-            self.possible_tags[UNK] = set(tag_count.keys()) - {'<s>'}
+            tag_count['<s>'] = line_count            
+            #self.possible_tags[UNK] = set(tag_count.keys()) - {'<s>'}
+            unk_tags = set()
+            for w in self.freqDict:
+                if self.freqDict[w] < 5:
+                    unk_tags.update(self.possible_tags[w])
             self.freqDict = {k: v for k, v in self.freqDict.items() if v >= self.minFreq}
+            self.possible_tags[UNK] = unk_tags
             self.word_to_ix[UNK] = 0
             index = 1
             for word in self.freqDict:
@@ -62,6 +67,7 @@ class HMM:
                 index += 1            
             num_tags = len(tag_count)
             self.tag_to_ix['<s>'] = num_tags - 1
+            self.ix_to_tag[num_tags - 1] = '<s>'
             index = 0
             for tag in tag_count:
                 if tag == '<s>':
@@ -70,7 +76,7 @@ class HMM:
                 self.ix_to_tag[index] = tag
                 index += 1
             self.trans_matrix = [[0 for x in range(num_tags - 1)] for y in range(num_tags)] # rows include start tag  
-            self.emission_matrix = [[0 for x in self.word_to_ix] for y in tag_count]  # tag_count rows by word type columns
+            self.emission_matrix = [[0 for x in self.word_to_ix] for y in range(num_tags - 1)]  # tag_count rows by word type columns
             for sen in sens:
                 last = sen[0]
                 curr_tag_ix = self.tag_to_ix[last.tag]
@@ -78,19 +84,30 @@ class HMM:
                     curr_word_ix = self.word_to_ix[UNK]
                 else:
                     curr_word_ix = self.word_to_ix[last.word]
-                self.emission_matrix[curr_tag_ix][curr_word_ix] += (1/tag_count[last.tag])
-                self.trans_matrix[num_tags - 1][curr_tag_ix] += (1/(tag_count['<s>'] + len(tag_count))) # smoothing
+                self.emission_matrix[curr_tag_ix][curr_word_ix] += 1
+                self.trans_matrix[num_tags - 1][curr_tag_ix] += 1
                 for i in range(1, len(sen)):
                     last_tag_ix = self.tag_to_ix[last.tag]
                     curr_tag_ix = self.tag_to_ix[sen[i].tag]
-                    self.trans_matrix[last_tag_ix][curr_tag_ix] += (1/(tag_count[last.tag] + len(tag_count))) # need to divide by count of last tag
-                    self.emission_matrix[curr_tag_ix][curr_word_ix] += (1/tag_count[last.tag])
+                    if sen[i].word not in self.word_to_ix:
+                        curr_word_ix = self.word_to_ix[UNK]
+                    else:
+                        curr_word_ix = self.word_to_ix[sen[i].word]
+                    self.trans_matrix[last_tag_ix][curr_tag_ix] += 1
+                    self.emission_matrix[curr_tag_ix][curr_word_ix] += 1
                     last = sen[i]
 
+            # smoothing, trans_matrix covers every possible bigram, should be no entries with 0
+            # rows should sum to about 1 because count tag in row is used in denominator for probs
             for i in range(num_tags):
                 last_tag = self.ix_to_tag[i]
-                for j in range(num_tags - 1):                    
-                    self.trans_matrix[i][j] += (1/(tag_count[last_tag] + len(tag_count)))
+                for j in range(num_tags - 1):
+                    self.trans_matrix[i][j] = (self.trans_matrix[i][j] + 1) / (tag_count[last_tag] + num_tags)
+
+            for i in range(num_tags - 1):
+                tag = self.ix_to_tag[i]
+                for j in range(len(self.word_to_ix)):
+                    self.emission_matrix[i][j] = self.emission_matrix[i][j] / tag_count[tag]
             
             return sens
         else:
@@ -178,11 +195,7 @@ class HMM:
             word_index = self.word_to_ix[UNK]
         else:
             word_index = self.word_to_ix[words[0]]     
-        for tag in self.tag_to_ix:
-            if tag == '<s>':
-                continue
-            tag_index = self.tag_to_ix[tag]
-            
+        for tag_index in range(num_tags - 1):            
             trans_prob = 0
             emiss_prob = 0
             if self.trans_matrix[num_tags - 1][tag_index] == 0:
@@ -197,6 +210,12 @@ class HMM:
             lattice[tag_index][0] = exp(log_prob)
             backpointer[tag_index][0] = 0
         for i in range(1, len(words)): # move over columns
+            last_word = words[i-1]
+            if last_word not in self.word_to_ix:
+                last_word_index = self.word_to_ix[UNK]
+                last_word = UNK
+            else:
+                last_word_index = self.word_to_ix[words[i-1]]
             word = words[i]
             if word not in self.word_to_ix:
                 word_index = self.word_to_ix[UNK]
@@ -207,9 +226,7 @@ class HMM:
                 tag_index = self.tag_to_ix[tag]
                 max_val = 0
                 prev_max_tag_ix = 0
-                for t in self.tag_to_ix:
-                    if t == '<s>':
-                        continue
+                for t in self.possible_tags[last_word]:
                     prev_tag_ix = self.tag_to_ix[t]
                     trans_prob = 0
                     emiss_prob = 0
