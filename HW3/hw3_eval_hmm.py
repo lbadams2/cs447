@@ -70,7 +70,7 @@ class Eval:
 if __name__ == "__main__":
     # Pass in the gold and test POS-tagged data as arguments
     if len(sys.argv) < 2:
-        print("Call hw2_eval_hmm.py with two arguments: gold.txt and out.txt")
+        print("Call hw2_eval_hmm.py with two arguments: gold.txt and test.txt")
     else:
         gold = sys.argv[1]
         test = sys.argv[2]
