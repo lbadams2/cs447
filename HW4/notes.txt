@@ -1,0 +1,62 @@
+Training:
+
+convert input and target sentences to sequence of indices
+find the max length of each set of sentences
+pad the sentences so that they are all their respective max lengths
+use first 24000 for training and remaining 6000 for test
+use batches of 60, the embedding dim is 256 for each word
+units is 1024??
+the vocab size of each is the number of indices assigned to words
+input is transposed before being passed to encoder
+Encoder passes sorted batch through embedding layer to get tensor of shape [16, 60, 256] (maybe 16 is max len of sentence)
+embedded tensor is then packed
+packed embedded is passed to gru to get packed output and hidden tensor
+packed ouput is unpacked to get tensor of size [12, 60, 256] and hidden size [1, 60, 256]
+
+
+The input to the decoder is batches from the target language of size [60, 1] sorted by its corresponding source sentence length (the target matches the source fed to encoder)
+    and the hidden state from the encoder of size [1, 60, 256]. The batch is one word from each sentence, moves along in timesteps (words)
+It will then embed each batch of single words to get [60, 1, 256]
+The attention weights are calculated through a linear layer, which takes as input a concatentated tensor of the embedding and last hidden [60, 512]
+    This linear layer is initialized with max length (not sure if should be source or target lang) and produces [60, 16]
+
+
+
+
+
+x batch size torch.Size([16, 60]) y batch size torch.Size([60, 11])
+encoder embedded size  torch.Size([16, 60, 256])
+encoder hidden size torch.Size([1, 60, 256])
+encoder padded output size  torch.Size([10, 60, 256])
+dec input size  torch.Size([60, 1])
+decoder input size torch.Size([60, 1]) last hidden size torch.Size([1, 60, 256])
+embedded size is torch.Size([1, 60, 256]) last hidden size is torch.Size([1, 60, 256])
+test cat size is  torch.Size([60, 512])
+test attn size is  torch.Size([60, 16])
+
+
+
+
+
+map input sequence to fixed size vector using one RNN and then use another RNN to map the fixed vector to a target sequence.  Fixed vector
+is given by the last hidden state of the first lstm. Then the target words are chosen conditioned on the hidden state v and all the preceding 
+predicted target words. Softmax is used to get a probability distribution over all target words
+
+encoder outputs tensor for entire batch of sentences, and the last hidden state which is batch X embedding dim (which may be the sum of embeddings for each word in sentence)
+Encodes input sentence into sequence of vectors and chooses a subset of these vectors adaptively while decoding the translation
+The conditional probability of a target word is based on all the previous target words and the hidden state from the encoder(fixed length vector or context) and hidden state from decoder, fed into a non linear function
+The probability is conditioned on a distinct context vector for each target word.  This context vector depends on a sequence of annotations to which the enocoder maps the input sentence
+    there are the same number of annotations as words in the sentence. Each annotation contains information about the whole input sequence with a focus on parts surrounding the ith word
+The context vector is weighted sum of these annotations. The weights are learned through a feedforward NN based on the hidden state of the decoder and the input annotation.
+    Its based on how the inputs at position j and outputs at position i match. i held constant, scan the j input positions. This is alignment model or scores
+    Each annotation is a vector, context vector is expected annotation, weighted sum of annotations with weight learned from alignment model for that particular position of input and output
+    The weight indicated the importance of the annotation with respect to the previous hidden state in deciding the next state and target word.  This is the atterntion mechanism
+    The information is spread throughout the sequence of annotations, which can be selectively retrieved by the decoder
+
+Alignment model needs to be evaulated Tx X Ty times (every combination of pairs). Use a single layer with activation function a operating on previous hidden state and input annotation a(s_i-1, h_j)
+    The hidden state is the 60 x 256 vector returned by encoder. Initial hidden state comes from encoder, alignment model examines all hidden state and learns weights for each pair of words which produces context vector
+    Regular encoder decoder would not have alignment model and fix context vector to be the hidden state from the encoder
+
+
+Annotation/Attention Weights - exp(score())
+
